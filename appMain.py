@@ -1,8 +1,22 @@
+import sys
+import os
+
+# 1. 윈도우 환경 pwd 에러 방지 (최상단 배치)
+try:
+    import pwd
+except ImportError:
+    import types
+    mock_pwd = types.ModuleType('pwd')
+    mock_pwd.getpwuid = lambda uid: None
+    sys.modules['pwd'] = mock_pwd
+
 import streamlit as st
 from appUtils import load_data, load_text_knowledge
 
 import appChatbot
-import appScanner
+import appScannerVLM
+import appScannerLLM
+import appScannerOCR
 import appLunch
 
 st.set_page_config(page_title="AI", page_icon="", layout="wide")
@@ -16,7 +30,7 @@ COMPANY_KNOWLEDGE = load_text_knowledge()
 with st.sidebar:
     st.title("AI")
     
-    app_mode = st.radio("기능 선택", ["사용설명서 챗봇", "명함 스캐너", "점심 메뉴 추천"])
+    app_mode = st.radio("기능 선택", ["사용설명서 챗봇", "명함 스캐너_LLM", "명함 스캐너_VLM", "명함 스캐너_OCR", "점심 메뉴 추천"])
     st.divider()
 
     if data is not None:
@@ -47,8 +61,14 @@ with st.sidebar:
 if app_mode == "사용설명서 챗봇":
     appChatbot.run(selected_name, emp_info)
 
-elif app_mode == "명함 스캐너":
-    appScanner.run(selected_name)
+elif app_mode == "명함 스캐너_LLM":
+    appScannerLLM.run(selected_name)
+
+elif app_mode == "명함 스캐너_VLM":
+    appScannerVLM.run(selected_name)   
+
+elif app_mode == "명함 스캐너_OCR":
+    appScannerOCR.run(selected_name)      
 
 elif app_mode == "점심 메뉴 추천":
     appLunch.run(selected_name)
